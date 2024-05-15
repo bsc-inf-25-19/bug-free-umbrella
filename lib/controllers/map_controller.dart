@@ -35,7 +35,7 @@ class MapController extends GetxController {
   }
 
   createMarkers() {
-    mapModel.forEach((element) {
+    for (var element in mapModel) {
       markers.add(Marker(
         markerId: MarkerId(element.id.toString()),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
@@ -45,6 +45,6 @@ class MapController extends GetxController {
           print('market tapped');
         },
       ));
-    });
+    }
   }
 }

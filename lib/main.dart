@@ -4,12 +4,14 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: MyApp(),
   ));
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -38,7 +40,7 @@ class _MyAppState extends State<MyApp> {
                 ),
                 markers: mapController.markers,
               )
-            : Center(
+            : const Center(
                 child: CircularProgressIndicator(),
               ),
       )),

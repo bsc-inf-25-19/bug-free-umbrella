@@ -33,16 +33,16 @@ class MapModel {
   }
 
   Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['id'] = id;
-    _data['house_no'] = house_no;
-    _data['road_name'] = road_name;
-    _data['postcode'] = postcode;
-    _data['area_name'] = area_name;
-    _data['region'] = region;
-    _data['latitude'] = latitude;
-    _data['longitude'] = longitude;
-    _data['district'] = district;
-    return _data;
+    final data = <String, dynamic>{};
+    data['id'] = id;
+    data['house_no'] = house_no;
+    data['road_name'] = road_name;
+    data['postcode'] = postcode;
+    data['area_name'] = area_name;
+    data['region'] = region;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
+    data['district'] = district;
+    return data;
   }
 }
