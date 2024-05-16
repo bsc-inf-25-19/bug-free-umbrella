@@ -3,7 +3,7 @@ import 'package:geocoding_assistant/controllers/map_controller.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-main() {
+void main() {
   runApp(const MaterialApp(
     home: MyApp(),
   ));
@@ -24,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     // Initially fetch with empty query
-    mapController.fetchLocations(""); 
+    mapController.fetchLocations("");
   }
 
   @override
@@ -59,8 +59,7 @@ class _MyAppState extends State<MyApp> {
               ),
             ),
             Expanded(
-              child: Obx(
-                () => GoogleMap(
+              child: Obx(() => GoogleMap(
                   initialCameraPosition: CameraPosition(
                     target: LatLng(-15.3875846, 35.3368270), // Initial location
                     zoom: 13,
@@ -75,4 +74,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
