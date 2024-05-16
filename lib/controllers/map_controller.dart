@@ -11,28 +11,31 @@ class MapController extends GetxController {
   var markers = RxSet<Marker>();
   var isLoading = false.obs;
 
-  fetchLocations() async {
-    try {
-      isLoading(true);
-      http.Response response = await http.get(Uri.tryParse('http://192.168.201.205:3000/search?text=matawale%2025%20Ngwalangwa')!);
-      if (response.statusCode == 200) {
-        ///data successfully
-        var result = jsonDecode(response.body);
-        log(result.toString());
-        mapModel.addAll(RxList<Map<String, dynamic>>.from(result)
-            .map((e) => MapModel.fromJson(e))
-            .toList());
-      } else {
-        print('error fetching data');
-      }
-    } catch (e) {
-      print('Error while getting data is $e');
-    } finally {
-      isLoading(false);
-      print('finaly: $mapModel');
-      createMarkers();
+fetchLocations(String searchText) async {
+  try {
+    isLoading(true);
+    // Clear existing markers
+    markers.clear();
+    
+    http.Response response = await http.get(Uri.tryParse('http://192.168.30.205:3000/search?text=$searchText')!);
+    if (response.statusCode == 200) {
+      var result = jsonDecode(response.body);
+      log(result.toString());
+      mapModel.addAll(RxList<Map<String, dynamic>>.from(result)
+          .map((e) => MapModel.fromJson(e))
+          .toList());
+      createMarkers(); // Create markers for new locations
+    } else {
+      print('Error fetching data');
     }
+  } catch (e) {
+    print('Error while getting data: $e');
+  } finally {
+    isLoading(false);
+    print('Finally: $mapModel');
   }
+}
+
 
   createMarkers() {
     for (var element in mapModel) {
