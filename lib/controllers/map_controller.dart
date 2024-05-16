@@ -11,41 +11,45 @@ class MapController extends GetxController {
   var markers = RxSet<Marker>();
   var isLoading = false.obs;
 
-fetchLocations(String searchText) async {
-  try {
-    isLoading(true);
-    // Clear existing markers
-    markers.clear();
-    
-    http.Response response = await http.get(Uri.tryParse('http://192.168.30.205:3000/search?text=$searchText')!);
-    if (response.statusCode == 200) {
-      var result = jsonDecode(response.body);
-      log(result.toString());
-      mapModel.addAll(RxList<Map<String, dynamic>>.from(result)
-          .map((e) => MapModel.fromJson(e))
-          .toList());
-      createMarkers(); // Create markers for new locations
-    } else {
-      print('Error fetching data');
+  fetchLocations(String searchText) async {
+    try {
+      isLoading(true);
+      final Uri url = Uri.parse('http://localhost:3000/search?text=$searchText');
+      log('Requesting URL: $url');
+      http.Response response = await http.get(url);
+      if (response.statusCode == 200) {
+        // Data successfully fetched
+        var result = jsonDecode(response.body);
+        log(result.toString());
+        mapModel.clear();
+        mapModel.addAll(RxList<Map<String, dynamic>>.from(result)
+            .map((e) => MapModel.fromJson(e))
+            .toList());
+      } else {
+        print('Error fetching data: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error while getting data: $e');
+    } finally {
+      isLoading(false);
+      print('Finally: $mapModel');
+      createMarkers();
     }
-  } catch (e) {
-    print('Error while getting data: $e');
-  } finally {
-    isLoading(false);
-    print('Finally: $mapModel');
   }
-}
-
 
   createMarkers() {
+    markers.clear();
     for (var element in mapModel) {
       markers.add(Marker(
         markerId: MarkerId(element.id.toString()),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
         position: LatLng(element.latitude, element.longitude),
-        infoWindow: InfoWindow(title: element.house_no, snippet: element.area_name),
+        infoWindow: InfoWindow(
+          title: element.house_no,
+          snippet: element.area_name,
+        ),
         onTap: () {
-          print('market tapped');
+          print('Marker tapped');
         },
       ));
     }
