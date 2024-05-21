@@ -17,14 +17,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  MapController mapController = Get.put(MapController());
+  final MapController mapController = Get.put(MapController());
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     // Initially fetch with empty query
-    mapController.fetchLocations("");
+    mapController.fetchLocations('');
   }
 
   @override
@@ -40,31 +40,35 @@ class _MyAppState extends State<MyApp> {
                   Expanded(
                     child: TextField(
                       controller: _searchController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Enter your search query',
                         border: OutlineInputBorder(),
                         isDense: true, // Reduce the height of the input field
                       ),
                     ),
                   ),
-                  SizedBox(width: 8.0), // Add some space between the text field and the button
+                  const SizedBox(width: 8.0), // Add some space between the text field and the button
                   ElevatedButton(
                     onPressed: () {
-                      String searchText = _searchController.text;
+                      final searchText = _searchController.text;
                       mapController.fetchLocations(searchText);
                     },
-                    child: Text('Search'),
+                    child: const Text('Search'),
                   ),
                 ],
               ),
             ),
             Expanded(
-              child: Obx(() => GoogleMap(
-                  initialCameraPosition: CameraPosition(
+              child: Obx(
+                    () => GoogleMap(
+                  initialCameraPosition: const CameraPosition(
                     target: LatLng(-15.3875846, 35.3368270), // Initial location
                     zoom: 13,
                   ),
                   markers: Set<Marker>.from(mapController.markers),
+                  onMapCreated: (GoogleMapController controller) {
+                    mapController.googleMapController = controller;
+                  },
                 ),
               ),
             ),

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:geocoding_assistant/models/map_model.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,34 +9,41 @@ class MapController extends GetxController {
   List<MapModel> mapModel = <MapModel>[].obs;
   var markers = RxSet<Marker>();
   var isLoading = false.obs;
+  GoogleMapController? googleMapController;
 
-  fetchLocations(String searchText) async {
+  Future<void> fetchLocations(String searchText) async {
     try {
       isLoading(true);
-      final Uri url = Uri.parse('http://localhost:3000/search?text=$searchText');
-      log('Requesting URL: $url');
-      http.Response response = await http.get(url);
+      final response = await http.get(
+          Uri.parse('http://localhost:3000/search?text=$searchText')
+      );
+
       if (response.statusCode == 200) {
-        // Data successfully fetched
-        var result = jsonDecode(response.body);
+        final result = jsonDecode(response.body);
         log(result.toString());
+
         mapModel.clear();
-        mapModel.addAll(RxList<Map<String, dynamic>>.from(result)
-            .map((e) => MapModel.fromJson(e))
-            .toList());
+        mapModel.addAll(result.map<MapModel>((e) => MapModel.fromJson(e)).toList());
+        createMarkers();
+
+        if (mapModel.isNotEmpty) {
+          final firstResult = mapModel.first;
+          final target = LatLng(firstResult.latitude, firstResult.longitude);
+          googleMapController?.animateCamera(
+            CameraUpdate.newLatLngZoom(target, 15),
+          );
+        }
       } else {
-        print('Error fetching data: ${response.statusCode}');
+        print('Error fetching data');
       }
     } catch (e) {
       print('Error while getting data: $e');
     } finally {
       isLoading(false);
-      print('Finally: $mapModel');
-      createMarkers();
     }
   }
 
-  createMarkers() {
+  void createMarkers() {
     markers.clear();
     for (var element in mapModel) {
       markers.add(Marker(

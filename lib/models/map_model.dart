@@ -14,7 +14,7 @@ class MapModel {
   late final int id;
   late final String house_no;
   late final String road_name;
-  late final dynamic postcode;
+  late final dynamic postcode; // Using dynamic to handle both int and String
   late final String area_name;
   late final String region;
   late final String district;
@@ -25,7 +25,7 @@ class MapModel {
     id = json['id'];
     house_no = json['house_no'];
     road_name = json['road_name'];
-    postcode = json['postcode'];
+    postcode = json['postcode']; // Assuming postcode can be either int or string
     area_name = json['area_name'];
     region = json['region'];
     district = json['district'];
