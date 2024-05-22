@@ -4,12 +4,20 @@ import 'package:geocoding_assistant/models/map_model.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MapController extends GetxController {
   List<MapModel> mapModel = <MapModel>[].obs;
   var markers = RxSet<Marker>();
   var isLoading = false.obs;
   GoogleMapController? googleMapController;
+  var searchHistory = <String>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadSearchHistory();
+  }
 
   Future<void> fetchLocations(String searchText) async {
     try {
@@ -33,6 +41,7 @@ class MapController extends GetxController {
             CameraUpdate.newLatLngZoom(target, 15),
           );
         }
+        addSearchToHistory(searchText);  // Save search text to history
       } else {
         print('Error fetching data');
       }
@@ -59,5 +68,18 @@ class MapController extends GetxController {
         },
       ));
     }
+  }
+
+  Future<void> addSearchToHistory(String searchText) async {
+    if (!searchHistory.contains(searchText)) {
+      searchHistory.add(searchText);
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setStringList('searchHistory', searchHistory);
+    }
+  }
+
+  Future<void> loadSearchHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    searchHistory.value = prefs.getStringList('searchHistory') ?? [];
   }
 }

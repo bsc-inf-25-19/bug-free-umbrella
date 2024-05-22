@@ -45,26 +45,47 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Row(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        labelText: 'Enter your search query',
-                        border: OutlineInputBorder(),
-                        isDense: true, // Reduce the height of the input field
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: const InputDecoration(
+                            labelText: 'Enter your search query',
+                            border: OutlineInputBorder(),
+                            isDense: true, // Reduce the height of the input field
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 8.0), // Add some space between the text field and the button
+                      ElevatedButton(
+                        onPressed: () {
+                          final searchText = _searchController.text;
+                          mapController.fetchLocations(searchText);
+                        },
+                        child: const Text('Search'),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8.0), // Add some space between the text field and the button
-                  ElevatedButton(
-                    onPressed: () {
-                      final searchText = _searchController.text;
-                      mapController.fetchLocations(searchText);
-                    },
-                    child: const Text('Search'),
-                  ),
+                  const SizedBox(height: 10),
+                  Obx(() {
+                    return Wrap(
+                      children: mapController.searchHistory.map((historyItem) {
+                        return Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: ActionChip(
+                            label: Text(historyItem),
+                            onPressed: () {
+                              mapController.fetchLocations(historyItem);
+                              _searchController.text = historyItem;
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  }),
                 ],
               ),
             ),
