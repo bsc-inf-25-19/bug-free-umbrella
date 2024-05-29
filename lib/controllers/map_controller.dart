@@ -23,7 +23,7 @@ class MapController extends GetxController {
     try {
       isLoading(true);
       final response = await http.get(
-          Uri.parse('http://localhost:3000/search?text=$searchText')
+          Uri.parse('http://146.190.224.204:3000/search?text=$searchText')
       );
 
       if (response.statusCode == 200) {
