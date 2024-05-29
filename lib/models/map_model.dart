@@ -10,10 +10,11 @@ class MapModel {
     required this.longitude,
     required this.district,
   });
+
   late final int id;
   late final String house_no;
   late final String road_name;
-  late final int postcode;
+  late final dynamic postcode; // Using dynamic to handle both int and String
   late final String area_name;
   late final String region;
   late final String district;
@@ -24,12 +25,16 @@ class MapModel {
     id = json['id'];
     house_no = json['house_no'];
     road_name = json['road_name'];
-    postcode = json['postcode'];
+    postcode = json['postcode']; // Assuming postcode can be either int or string
     area_name = json['area_name'];
     region = json['region'];
-    latitude = json['latitude'];
-    longitude = json['longitude'];
     district = json['district'];
+    latitude = json['latitude'] is String
+        ? double.parse(json['latitude'])
+        : json['latitude'].toDouble();
+    longitude = json['longitude'] is String
+        ? double.parse(json['longitude'])
+        : json['longitude'].toDouble();
   }
 
   Map<String, dynamic> toJson() {

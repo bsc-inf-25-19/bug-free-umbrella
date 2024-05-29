@@ -3,28 +3,38 @@ import 'package:geocoding_assistant/controllers/map_controller.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-main() {
-  runApp(const MaterialApp(
-    home: MyApp(),
-  ));
+void main() {
+  runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const MyHomePage(),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
-  MapController mapController = Get.put(MapController());
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final MapController mapController = Get.put(MapController());
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     // Initially fetch with empty query
-    mapController.fetchLocations(""); 
+    mapController.fetchLocations('');
   }
 
   @override
@@ -35,37 +45,61 @@ class _MyAppState extends State<MyApp> {
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Row(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        labelText: 'Enter your search query',
-                        border: OutlineInputBorder(),
-                        isDense: true, // Reduce the height of the input field
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: const InputDecoration(
+                            labelText: 'Enter your search query',
+                            border: OutlineInputBorder(),
+                            isDense: true, // Reduce the height of the input field
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 8.0), // Add some space between the text field and the button
+                      ElevatedButton(
+                        onPressed: () {
+                          final searchText = _searchController.text;
+                          mapController.fetchLocations(searchText);
+                        },
+                        child: const Text('Search'),
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 8.0), // Add some space between the text field and the button
-                  ElevatedButton(
-                    onPressed: () {
-                      String searchText = _searchController.text;
-                      mapController.fetchLocations(searchText);
-                    },
-                    child: Text('Search'),
-                  ),
+                  const SizedBox(height: 10),
+                  Obx(() {
+                    return Wrap(
+                      children: mapController.searchHistory.map((historyItem) {
+                        return Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: ActionChip(
+                            label: Text(historyItem),
+                            onPressed: () {
+                              mapController.fetchLocations(historyItem);
+                              _searchController.text = historyItem;
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  }),
                 ],
               ),
             ),
             Expanded(
               child: Obx(
-                () => GoogleMap(
-                  initialCameraPosition: CameraPosition(
+                    () => GoogleMap(
+                  initialCameraPosition: const CameraPosition(
                     target: LatLng(-15.3875846, 35.3368270), // Initial location
                     zoom: 13,
                   ),
                   markers: Set<Marker>.from(mapController.markers),
+                  onMapCreated: (GoogleMapController controller) {
+                    mapController.googleMapController = controller;
+                  },
                 ),
               ),
             ),
@@ -75,4 +109,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
