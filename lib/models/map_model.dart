@@ -1,3 +1,4 @@
+// map_model.dart
 class MapModel {
   MapModel({
     required this.id,

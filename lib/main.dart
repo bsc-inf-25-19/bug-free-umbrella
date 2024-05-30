@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding_assistant/controllers/map_controller.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 void main() {
   runApp(const MyApp());
@@ -50,13 +51,28 @@ class _MyHomePageState extends State<MyHomePage> {
                   Row(
                     children: [
                       Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: const InputDecoration(
-                            labelText: 'Enter your search query',
-                            border: OutlineInputBorder(),
-                            isDense: true, // Reduce the height of the input field
+                        child: TypeAheadField<String>(
+                          textFieldConfiguration: TextFieldConfiguration(
+                            controller: _searchController,
+                            decoration: const InputDecoration(
+                              labelText: 'Enter your search query',
+                              border: OutlineInputBorder(),
+                              isDense: true, // Reduce the height of the input field
+                            ),
                           ),
+                          suggestionsCallback: (pattern) {
+                            return mapController.searchHistory.where((historyItem) =>
+                                historyItem.toLowerCase().contains(pattern.toLowerCase()));
+                          },
+                          itemBuilder: (context, suggestion) {
+                            return ListTile(
+                              title: Text(suggestion),
+                            );
+                          },
+                          onSuggestionSelected: (suggestion) {
+                            _searchController.text = suggestion;
+                            mapController.fetchLocations(suggestion);
+                          },
                         ),
                       ),
                       const SizedBox(width: 8.0), // Add some space between the text field and the button
@@ -69,23 +85,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  Obx(() {
-                    return Wrap(
-                      children: mapController.searchHistory.map((historyItem) {
-                        return Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: ActionChip(
-                            label: Text(historyItem),
-                            onPressed: () {
-                              mapController.fetchLocations(historyItem);
-                              _searchController.text = historyItem;
-                            },
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  }),
                 ],
               ),
             ),
@@ -97,6 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     zoom: 13,
                   ),
                   markers: Set<Marker>.from(mapController.markers),
+                  polygons: Set<Polygon>.from(mapController.polygons),
                   onMapCreated: (GoogleMapController controller) {
                     mapController.googleMapController = controller;
                   },
