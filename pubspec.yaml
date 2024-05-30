@@ -10,6 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   get: ^4.6.6
+  flutter_typeahead: ^4.0.0
+  autocomplete_textfield: ^2.0.1
   shared_preferences: ^2.0.11
   google_maps_flutter: ^2.6.1
   google_maps_flutter_web: ^0.5.7
