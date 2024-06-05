@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -143,9 +144,11 @@ class MapController extends GetxController {
     }
   }
 
+
   void _showAddressModal(BuildContext context, MapModel address) {
     showModalBottomSheet(
       context: context,
+      elevation: 10, // Set a higher elevation to ensure it appears above other widgets
       builder: (BuildContext context) {
         return Padding(
           padding: const EdgeInsets.all(16.0),
@@ -172,7 +175,15 @@ class MapController extends GetxController {
                   IconButton(
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: address.toFullAddress()));
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Address copied to clipboard')));
+                      Fluttertoast.showToast(
+                        msg: 'Address copied to clipboard',
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.grey[800],
+                        textColor: Colors.white,
+                        fontSize: 16.0,
+                      );
                     },
                     icon: Icon(Icons.copy),
                   ),
