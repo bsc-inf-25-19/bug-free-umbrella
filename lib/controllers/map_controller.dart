@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // LatLng class for convex hull algorithm
@@ -158,12 +157,23 @@ class MapController extends GetxController {
               Text('Latitude: ${address.latitude}'),
               Text('Longitude: ${address.longitude}'),
               const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  final url = 'https://www.google.com/maps/dir/?api=1&destination=${address.latitude},${address.longitude}&destination_place_id=${address.id}';
-                  _launchURL(url);
-                },
-                child: const Text('Navigate'),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      final url = 'https://www.google.com/maps/dir/?api=1&destination=${address.latitude},${address.longitude}&destination_place_id=${address.id}';
+                      _launchURL(url);
+                    },
+                    icon: Icon(Icons.navigation),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: address.toFullAddress()));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Address copied to clipboard')));
+                    },
+                    icon: Icon(Icons.copy),
+                  ),
+                ],
               ),
             ],
           ),

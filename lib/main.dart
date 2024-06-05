@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Expanded(
               child: Obx(
-                () => GoogleMap(
+                    () => GoogleMap(
                   initialCameraPosition: const CameraPosition(
                     target: LatLng(-15.3875846, 35.3368270), // Initial location
                     zoom: 13,

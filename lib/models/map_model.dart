@@ -1,4 +1,14 @@
 class MapModel {
+  final int id;
+  final String house_no;
+  final String road_name;
+  final dynamic postcode; // Using dynamic to handle both int and String
+  final String area_name;
+  final String region;
+  final String district;
+  final double latitude;
+  final double longitude;
+
   MapModel({
     required this.id,
     required this.house_no,
@@ -9,50 +19,27 @@ class MapModel {
     required this.latitude,
     required this.longitude,
     required this.district,
-  }) {
-    fullAddress = '$house_no, $road_name, $area_name, $district, $region, $postcode';
+  });
+
+  factory MapModel.fromJson(Map<String, dynamic> json) {
+    return MapModel(
+      id: json['id'],
+      house_no: json['house_no'],
+      road_name: json['road_name'],
+      postcode: json['postcode'], // Assuming postcode can be either int or string
+      area_name: json['area_name'],
+      region: json['region'],
+      district: json['district'],
+      latitude: json['latitude'] is String
+          ? double.parse(json['latitude'])
+          : json['latitude'].toDouble(),
+      longitude: json['longitude'] is String
+          ? double.parse(json['longitude'])
+          : json['longitude'].toDouble(),
+    );
   }
 
-  late final int id;
-  late final String house_no;
-  late final String road_name;
-  late final dynamic postcode; // Using dynamic to handle both int and String
-  late final String area_name;
-  late final String region;
-  late final String district;
-  late final double latitude;
-  late final double longitude;
-  late final String fullAddress; // Add this line
-
-  MapModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    house_no = json['house_no'];
-    road_name = json['road_name'];
-    postcode = json['postcode']; // Assuming postcode can be either int or string
-    area_name = json['area_name'];
-    region = json['region'];
-    district = json['district'];
-    latitude = json['latitude'] is String
-        ? double.parse(json['latitude'])
-        : json['latitude'].toDouble();
-    longitude = json['longitude'] is String
-        ? double.parse(json['longitude'])
-        : json['longitude'].toDouble();
-    fullAddress = '$house_no, $road_name, $area_name, $district, $region, $postcode'; // Add this line
-  }
-
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['id'] = id;
-    data['house_no'] = house_no;
-    data['road_name'] = road_name;
-    data['postcode'] = postcode;
-    data['area_name'] = area_name;
-    data['region'] = region;
-    data['latitude'] = latitude;
-    data['longitude'] = longitude;
-    data['district'] = district;
-    data['fullAddress'] = fullAddress; // Add this line
-    return data;
+  String toFullAddress() {
+    return '$house_no, $road_name, $area_name, $region'; // Adjust according to your address structure
   }
 }
