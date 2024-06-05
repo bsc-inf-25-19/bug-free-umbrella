@@ -1,4 +1,3 @@
-// map_model.dart
 class MapModel {
   MapModel({
     required this.id,
@@ -10,7 +9,9 @@ class MapModel {
     required this.latitude,
     required this.longitude,
     required this.district,
-  });
+  }) {
+    fullAddress = '$house_no, $road_name, $area_name, $district, $region, $postcode';
+  }
 
   late final int id;
   late final String house_no;
@@ -21,6 +22,7 @@ class MapModel {
   late final String district;
   late final double latitude;
   late final double longitude;
+  late final String fullAddress; // Add this line
 
   MapModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -36,6 +38,7 @@ class MapModel {
     longitude = json['longitude'] is String
         ? double.parse(json['longitude'])
         : json['longitude'].toDouble();
+    fullAddress = '$house_no, $road_name, $area_name, $district, $region, $postcode'; // Add this line
   }
 
   Map<String, dynamic> toJson() {
@@ -49,6 +52,7 @@ class MapModel {
     data['latitude'] = latitude;
     data['longitude'] = longitude;
     data['district'] = district;
+    data['fullAddress'] = fullAddress; // Add this line
     return data;
   }
 }

@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:geocoding_assistant/models/map_model.dart';
+import 'package:geocoding_assistant/models/map_model.dart'; // Import the MapModel class
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // LatLng class for convex hull algorithm
 class MapLatLng {
@@ -69,7 +70,7 @@ class MapController extends GetxController {
     loadSearchHistory();
   }
 
-  Future<void> fetchLocations(String searchText) async {
+  Future<void> fetchLocations(String searchText, BuildContext context) async {
     try {
       isLoading(true);
       final response = await http.get(
@@ -89,7 +90,7 @@ class MapController extends GetxController {
         if (isPostcode || isAreaSearch) {
           createPolygon();
         } else {
-          createMarkers();
+          createMarkers(context);
         }
 
         if (mapModel.isNotEmpty) {
@@ -124,7 +125,7 @@ class MapController extends GetxController {
     ));
   }
 
-  void createMarkers() {
+  void createMarkers(BuildContext context) {
     markers.clear();
     for (var element in mapModel) {
       markers.add(Marker(
@@ -134,11 +135,48 @@ class MapController extends GetxController {
         infoWindow: InfoWindow(
           title: element.house_no,
           snippet: element.area_name,
+          onTap: () => _showAddressModal(context, element),
         ),
-        onTap: () {
-          print('Marker tapped');
-        },
       ));
+    }
+  }
+
+  void _showAddressModal(BuildContext context, MapModel address) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('House Number: ${address.house_no}', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('Road Name: ${address.road_name}'),
+              Text('Area Name: ${address.area_name}'),
+              Text('Region: ${address.region}'),
+              Text('Latitude: ${address.latitude}'),
+              Text('Longitude: ${address.longitude}'),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  final url = 'https://www.google.com/maps/dir/?api=1&destination=${address.latitude},${address.longitude}&destination_place_id=${address.id}';
+                  _launchURL(url);
+                },
+                child: const Text('Navigate'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
     }
   }
 

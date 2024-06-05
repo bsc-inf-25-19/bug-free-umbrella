@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     // Initially fetch with empty query
-    mapController.fetchLocations('');
+    mapController.fetchLocations('', context);
   }
 
   @override
@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                           onSuggestionSelected: (suggestion) {
                             _searchController.text = suggestion;
-                            mapController.fetchLocations(suggestion);
+                            mapController.fetchLocations(suggestion, context);
                           },
                         ),
                       ),
@@ -79,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ElevatedButton(
                         onPressed: () {
                           final searchText = _searchController.text;
-                          mapController.fetchLocations(searchText);
+                          mapController.fetchLocations(searchText, context);
                         },
                         child: const Text('Search'),
                       ),
@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Expanded(
               child: Obx(
-                    () => GoogleMap(
+                () => GoogleMap(
                   initialCameraPosition: const CameraPosition(
                     target: LatLng(-15.3875846, 35.3368270), // Initial location
                     zoom: 13,
