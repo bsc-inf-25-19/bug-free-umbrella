@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       home: const MyHomePage(),
     );
@@ -66,21 +66,43 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Row(
+            Obx(
+                  () => GoogleMap(
+                initialCameraPosition: const CameraPosition(
+                  target: LatLng(-15.3875846, 35.3368270), // Initial location
+                  zoom: 13,
+                ),
+                markers: Set<Marker>.from(mapController.markers),
+                polygons: Set<Polygon>.from(mapController.polygons),
+                onMapCreated: (GoogleMapController controller) {
+                  mapController.googleMapController = controller;
+                },
+              ),
+            ),
+            Positioned(
+              top: 10,
+              left: 15,
+              right: 15,
+              child: Card(
+                elevation: 10,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
                     children: [
                       Expanded(
                         child: TypeAheadField<String>(
                           textFieldConfiguration: TextFieldConfiguration(
                             controller: _searchController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Enter your search query',
-                              border: OutlineInputBorder(),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
                               isDense: true, // Reduce the height of the input field
                             ),
                           ),
@@ -97,6 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             _searchController.text = suggestion;
                             mapController.fetchLocations(suggestion, context);
                           },
+                          noItemsFoundBuilder: (context) => const SizedBox.shrink(),
                         ),
                       ),
                       const SizedBox(width: 8.0), // Add some space between the text field and the button
@@ -106,24 +129,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           mapController.fetchLocations(searchText, context);
                         },
                         child: const Text('Search'),
+                        style: ElevatedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Obx(
-                    () => GoogleMap(
-                  initialCameraPosition: const CameraPosition(
-                    target: LatLng(-15.3875846, 35.3368270), // Initial location
-                    zoom: 13,
-                  ),
-                  markers: Set<Marker>.from(mapController.markers),
-                  polygons: Set<Polygon>.from(mapController.polygons),
-                  onMapCreated: (GoogleMapController controller) {
-                    mapController.googleMapController = controller;
-                  },
                 ),
               ),
             ),

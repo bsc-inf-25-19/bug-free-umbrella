@@ -8,6 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share/share.dart';
 
 import '../models/map_model.dart';
 
@@ -87,6 +88,9 @@ class MapController extends GetxController {
         mapModel.clear();
         mapModel.addAll(result.map<MapModel>((e) => MapModel.fromJson(e)).toList());
 
+        // Cache the search result
+        await cacheSearchResult(searchText, result);
+
         bool isPostcode = searchText.contains(RegExp(r'^\d+$')) && searchText.length >= 12;
         bool isAreaSearch = !searchText.contains(RegExp(r'\d'));
 
@@ -109,8 +113,53 @@ class MapController extends GetxController {
       }
     } catch (e) {
       print('Error while getting data: $e');
+      // Try to load from cache
+      await loadFromCache(searchText, context);
     } finally {
       isLoading(false);
+    }
+  }
+
+  Future<void> cacheSearchResult(String searchText, dynamic result) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(searchText, jsonEncode(result));
+  }
+
+  Future<void> loadFromCache(String searchText, BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final cachedData = prefs.getString(searchText);
+
+    if (cachedData != null) {
+      final result = jsonDecode(cachedData);
+      mapModel.clear();
+      mapModel.addAll(result.map<MapModel>((e) => MapModel.fromJson(e)).toList());
+
+      bool isPostcode = searchText.contains(RegExp(r'^\d+$')) && searchText.length >= 12;
+      bool isAreaSearch = !searchText.contains(RegExp(r'\d'));
+
+      if (isPostcode || isAreaSearch) {
+        createPolygon();
+      } else {
+        createMarkers(context);
+      }
+
+      if (mapModel.isNotEmpty) {
+        final firstResult = mapModel.first;
+        final target = LatLng(firstResult.latitude, firstResult.longitude);
+        googleMapController?.animateCamera(
+          CameraUpdate.newLatLngZoom(target, 15),
+        );
+      }
+    } else {
+      Fluttertoast.showToast(
+        msg: 'No cached data available',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.grey[800],
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
     }
   }
 
@@ -143,7 +192,6 @@ class MapController extends GetxController {
       ));
     }
   }
-
 
   void _showAddressModal(BuildContext context, MapModel address) {
     showModalBottomSheet(
@@ -187,12 +235,25 @@ class MapController extends GetxController {
                     },
                     icon: Icon(Icons.copy),
                   ),
+                  IconButton(
+                    onPressed: () {
+                      _shareAddress(context, address.toFullAddress());
+                    },
+                    icon: Icon(Icons.share),
+                  ),
                 ],
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  void _shareAddress(BuildContext context, String address) {
+    final RenderBox box = context.findRenderObject() as RenderBox;
+    Share.share(address,
+      sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
     );
   }
 
