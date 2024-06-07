@@ -39,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _showWelcomeDialog(context);
     });
     // Initially fetch with empty query
-    mapController.fetchLocations('');
+    mapController.fetchLocations('', context);
   }
 
   void _showWelcomeDialog(BuildContext context) {
@@ -95,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                           onSuggestionSelected: (suggestion) {
                             _searchController.text = suggestion;
-                            mapController.fetchLocations(suggestion);
+                            mapController.fetchLocations(suggestion, context);
                           },
                         ),
                       ),
@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ElevatedButton(
                         onPressed: () {
                           final searchText = _searchController.text;
-                          mapController.fetchLocations(searchText);
+                          mapController.fetchLocations(searchText, context);
                         },
                         child: const Text('Search'),
                       ),
