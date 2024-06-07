@@ -34,8 +34,32 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    // Show the dialog when the app starts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showWelcomeDialog(context);
+    });
     // Initially fetch with empty query
     mapController.fetchLocations('');
+  }
+
+  void _showWelcomeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('MALAWI GEOCODING ASSISTANT'),
+          content: const Text('Welcome! Start by searching for an address.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
