@@ -2,7 +2,7 @@ class MapModel {
   final int id;
   final String house_no;
   final String road_name;
-  final dynamic postcode; // Using dynamic to handle both int and String
+  final String postcode;
   final String area_name;
   final String region;
   final String district;
@@ -16,9 +16,9 @@ class MapModel {
     required this.postcode,
     required this.area_name,
     required this.region,
+    required this.district,
     required this.latitude,
     required this.longitude,
-    required this.district,
   });
 
   factory MapModel.fromJson(Map<String, dynamic> json) {
@@ -26,7 +26,7 @@ class MapModel {
       id: json['id'],
       house_no: json['house_no'],
       road_name: json['road_name'],
-      postcode: json['postcode'], // Assuming postcode can be either int or string
+      postcode: json['postcode'],
       area_name: json['area_name'],
       region: json['region'],
       district: json['district'],
@@ -40,6 +40,6 @@ class MapModel {
   }
 
   String toFullAddress() {
-    return '$house_no, $road_name, $area_name, $region'; // Adjust according to your address structure
+    return '$house_no, $road_name, $area_name, $region';
   }
 }

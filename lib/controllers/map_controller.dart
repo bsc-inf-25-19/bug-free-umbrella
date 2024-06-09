@@ -9,56 +9,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share/share.dart';
-
 import '../models/map_model.dart';
-
-// LatLng class for convex hull algorithm
-class MapLatLng {
-  final double latitude;
-  final double longitude;
-
-  MapLatLng(this.latitude, this.longitude);
-
-  double get x => longitude;
-  double get y => latitude;
-}
-
-// Convex hull algorithm
-List<MapLatLng> convexHull(List<MapLatLng> points) {
-  if (points.length <= 3) {
-    return points;
-  }
-
-  points.sort((a, b) => a.x.compareTo(b.x));
-
-  List<MapLatLng> lower = [];
-  for (MapLatLng point in points) {
-    while (lower.length >= 2 &&
-        cross(lower[lower.length - 2], lower[lower.length - 1], point) <= 0) {
-      lower.removeLast();
-    }
-    lower.add(point);
-  }
-
-  List<MapLatLng> upper = [];
-  for (MapLatLng point in points.reversed) {
-    while (upper.length >= 2 &&
-        cross(upper[upper.length - 2], upper[upper.length - 1], point) <= 0) {
-      upper.removeLast();
-    }
-    upper.add(point);
-  }
-
-  lower.removeLast();
-  upper.removeLast();
-  lower.addAll(upper);
-
-  return lower;
-}
-
-double cross(MapLatLng o, MapLatLng a, MapLatLng b) {
-  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
-}
+import '../utils/convex_hull.dart';
 
 class MapController extends GetxController {
   List<MapModel> mapModel = <MapModel>[].obs;
@@ -75,6 +27,7 @@ class MapController extends GetxController {
   }
 
   Future<void> fetchLocations(String searchText, BuildContext context) async {
+    log('Search text: $searchText');  // Debug log
     try {
       isLoading(true);
       final response = await http.get(
@@ -83,21 +36,19 @@ class MapController extends GetxController {
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
-        log(result.toString());
+        log('API Response: $result');  // Debug log
 
         mapModel.clear();
         mapModel.addAll(result.map<MapModel>((e) => MapModel.fromJson(e)).toList());
 
-        // Cache the search result
         await cacheSearchResult(searchText, result);
 
-        bool isPostcode = searchText.contains(RegExp(r'^\d+$')) && searchText.length >= 12;
-        bool isAreaSearch = !searchText.contains(RegExp(r'\d'));
-
-        if (isPostcode || isAreaSearch) {
-          createPolygon();
-        } else {
+        if (searchText.contains(RegExp(r'\d'))) {
+          // Contains a number, assume it's a house search
           createMarkers(context);
+        } else {
+          // No number, assume it's an area search
+          createPolygons(context);
         }
 
         if (mapModel.isNotEmpty) {
@@ -107,13 +58,12 @@ class MapController extends GetxController {
             CameraUpdate.newLatLngZoom(target, 15),
           );
         }
-        addSearchToHistory(searchText);  // Save search text to history
+        addSearchToHistory(searchText);
       } else {
-        print('Error fetching data');
+        log('Error fetching data: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error while getting data: $e');
-      // Try to load from cache
+      log('Error while getting data: $e');
       await loadFromCache(searchText, context);
     } finally {
       isLoading(false);
@@ -134,13 +84,10 @@ class MapController extends GetxController {
       mapModel.clear();
       mapModel.addAll(result.map<MapModel>((e) => MapModel.fromJson(e)).toList());
 
-      bool isPostcode = searchText.contains(RegExp(r'^\d+$')) && searchText.length >= 12;
-      bool isAreaSearch = !searchText.contains(RegExp(r'\d'));
-
-      if (isPostcode || isAreaSearch) {
-        createPolygon();
-      } else {
+      if (searchText.contains(RegExp(r'\d'))) {
         createMarkers(context);
+      } else {
+        createPolygons(context);
       }
 
       if (mapModel.isNotEmpty) {
@@ -163,20 +110,6 @@ class MapController extends GetxController {
     }
   }
 
-  void createPolygon() {
-    polygons.clear();
-    List<MapLatLng> points = mapModel.map((element) => MapLatLng(element.latitude, element.longitude)).toList();
-    List<MapLatLng> hullPoints = convexHull(points);
-
-    polygons.add(Polygon(
-      polygonId: PolygonId('polygon_1'),
-      points: hullPoints.map((p) => LatLng(p.latitude, p.longitude)).toList(),
-      strokeColor: Colors.blue,
-      strokeWidth: 2,
-      fillColor: Colors.blue.withOpacity(0.15),
-    ));
-  }
-
   void createMarkers(BuildContext context) {
     markers.clear();
     for (var element in mapModel) {
@@ -193,10 +126,25 @@ class MapController extends GetxController {
     }
   }
 
+  void createPolygons(BuildContext context) {
+    polygons.clear();
+    List<LatLng> points = mapModel.map((e) => LatLng(e.latitude, e.longitude)).toList();
+    List<MapLatLng> convexHullPoints = convexHull(points.map((e) => MapLatLng(e.latitude, e.longitude)).toList());
+    polygons.add(
+      Polygon(
+        polygonId: PolygonId('areaPolygon'),
+        points: convexHullPoints.map((e) => LatLng(e.latitude, e.longitude)).toList(),
+        strokeColor: Colors.blue,
+        strokeWidth: 2,
+        fillColor: Colors.blue.withOpacity(0.15),
+      ),
+    );
+  }
+
   void _showAddressModal(BuildContext context, MapModel address) {
     showModalBottomSheet(
       context: context,
-      elevation: 10, // Set a higher elevation to ensure it appears above other widgets
+      elevation: 10,
       builder: (BuildContext context) {
         return Padding(
           padding: const EdgeInsets.all(16.0),
@@ -208,18 +156,12 @@ class MapController extends GetxController {
               Text('Road Name: ${address.road_name}'),
               Text('Area Name: ${address.area_name}'),
               Text('Region: ${address.region}'),
+              Text('Postcode: ${address.postcode}'),
               Text('Latitude: ${address.latitude}'),
               Text('Longitude: ${address.longitude}'),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  IconButton(
-                    onPressed: () {
-                      final url = 'https://www.google.com/maps/dir/?api=1&destination=${address.latitude},${address.longitude}&destination_place_id=${address.id}';
-                      _launchURL(url);
-                    },
-                    icon: Icon(Icons.navigation),
-                  ),
                   IconButton(
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: address.toFullAddress()));
@@ -240,6 +182,27 @@ class MapController extends GetxController {
                       _shareAddress(context, address.toFullAddress());
                     },
                     icon: Icon(Icons.share),
+                  ),
+                  PopupMenuButton<String>(
+                    onSelected: (String value) {
+                      final destination = '${address.latitude},${address.longitude}';
+                      String url = '';
+                      if (value == 'Google Maps') {
+                        url = 'https://www.google.com/maps/dir/?api=1&destination=$destination';
+                      } else if (value == 'Waze') {
+                        url = 'https://waze.com/ul?ll=$destination&navigate=yes';
+                      }
+                      _launchURL(url);
+                    },
+                    itemBuilder: (BuildContext context) {
+                      return {'Google Maps', 'Waze'}.map((String choice) {
+                        return PopupMenuItem<String>(
+                          value: choice,
+                          child: Text(choice),
+                        );
+                      }).toList();
+                    },
+                    icon: Icon(Icons.directions),
                   ),
                 ],
               ),
