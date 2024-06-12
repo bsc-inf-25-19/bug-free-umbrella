@@ -39,9 +39,13 @@ class MapController extends GetxController {
         log('API Response: $result');  // Debug log
 
         mapModel.clear();
-        mapModel.addAll(result.map<MapModel>((e) => MapModel.fromJson(e)).toList());
-
-        await cacheSearchResult(searchText, result);
+        result.forEach((item) {
+          try {
+            mapModel.add(MapModel.fromJson(item));
+          } catch (e) {
+            log('Error parsing item: $item\nError: $e');
+          }
+        });
 
         if (searchText.contains(RegExp(r'\d'))) {
           // Contains a number, assume it's a house search
@@ -61,45 +65,20 @@ class MapController extends GetxController {
         addSearchToHistory(searchText);
       } else {
         log('Error fetching data: ${response.statusCode}');
+        Fluttertoast.showToast(
+          msg: 'Error fetching data: ${response.statusCode}',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey[800],
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
       }
     } catch (e) {
       log('Error while getting data: $e');
-      await loadFromCache(searchText, context);
-    } finally {
-      isLoading(false);
-    }
-  }
-
-  Future<void> cacheSearchResult(String searchText, dynamic result) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(searchText, jsonEncode(result));
-  }
-
-  Future<void> loadFromCache(String searchText, BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final cachedData = prefs.getString(searchText);
-
-    if (cachedData != null) {
-      final result = jsonDecode(cachedData);
-      mapModel.clear();
-      mapModel.addAll(result.map<MapModel>((e) => MapModel.fromJson(e)).toList());
-
-      if (searchText.contains(RegExp(r'\d'))) {
-        createMarkers(context);
-      } else {
-        createPolygons(context);
-      }
-
-      if (mapModel.isNotEmpty) {
-        final firstResult = mapModel.first;
-        final target = LatLng(firstResult.latitude, firstResult.longitude);
-        googleMapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(target, 15),
-        );
-      }
-    } else {
       Fluttertoast.showToast(
-        msg: 'No cached data available',
+        msg: 'Error while getting data: $e',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
@@ -107,6 +86,8 @@ class MapController extends GetxController {
         textColor: Colors.white,
         fontSize: 16.0,
       );
+    } finally {
+      isLoading(false);
     }
   }
 
