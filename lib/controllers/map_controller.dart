@@ -136,11 +136,14 @@ class MapController extends GetxController {
               Text('House Number: ${address.house_no}', style: TextStyle(fontWeight: FontWeight.bold)),
               Text('Road Name: ${address.road_name}'),
               Text('Area Name: ${address.area_name}'),
+              Text('District: ${address.district}'),
               Text('Region: ${address.region}'),
               Text('Postcode: ${address.postcode}'),
               Text('Latitude: ${address.latitude}'),
               Text('Longitude: ${address.longitude}'),
               const SizedBox(height: 10),
+              Text(address.toFullAddress()), // Display full address
+
               Row(
                 children: [
                   IconButton(

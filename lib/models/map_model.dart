@@ -24,12 +24,12 @@ class MapModel {
   factory MapModel.fromJson(Map<String, dynamic> json) {
     return MapModel(
       id: json['id'],
-      house_no: json['house_no'],
-      road_name: json['road_name'],
-      postcode: json['postcode'],
-      area_name: json['area_name'],
-      region: json['region'],
-      district: json['district'],
+      house_no: json['house_no'].toString(),
+      road_name: json['road_name']?.toString() ?? '',
+      area_name: json['area_name']?.toString() ?? '',
+      region: json['region']?.toString() ?? '',
+      postcode: json['postcode']?.toString() ?? '',
+      district: json['district']?.toString() ?? '',
       latitude: json['latitude'] is String
           ? double.parse(json['latitude'])
           : json['latitude'].toDouble(),
@@ -40,6 +40,6 @@ class MapModel {
   }
 
   String toFullAddress() {
-    return '$house_no, $road_name, $area_name, $region';
+    return '$house_no, $road_name, $area_name, $district, $region';
   }
 }
