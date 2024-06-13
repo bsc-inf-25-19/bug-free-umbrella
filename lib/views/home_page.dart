@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -74,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
                       Expanded(
@@ -106,9 +107,22 @@ class _MyHomePageState extends State<MyHomePage> {
                       IconButton(
                         icon: Icon(Icons.search),
                         onPressed: () {
-                          final searchText = _searchController.text;
-                          log('Search button clicked with text: $searchText');
-                          mapController.fetchLocations(searchText, context);
+                          final searchText = _searchController.text.trim();  // Trim whitespace
+
+                          if (searchText.isEmpty) {
+                            Fluttertoast.showToast(
+                              msg: 'No address entered',
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.grey[800],
+                              textColor: Colors.white,
+                              fontSize: 16.0,
+                            );
+                          } else {
+                            log('Search button clicked with text: $searchText'); // Debug log
+                            mapController.fetchLocations(searchText, context);
+                          }
                         },
                       ),
                     ],
