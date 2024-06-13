@@ -94,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               _searchController.text = suggestion;
                               mapController.fetchLocations(suggestion, context);
                             },
+                            noItemsFoundBuilder: (context) => const SizedBox.shrink(),
 
                           ),
                         ),
