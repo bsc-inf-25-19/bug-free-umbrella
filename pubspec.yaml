@@ -31,10 +31,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/icon/Geoblogging.png
+    - assets/icon/gen2.png
 
 flutter_native_splash:
-    color: "#ffffff"
-    image: assets/icon/Geoblogging.png
+    color: "#bababb"
+    image: assets/icon/gen2.png
     android: true
     ios: true
