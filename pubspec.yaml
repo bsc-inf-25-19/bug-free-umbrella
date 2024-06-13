@@ -24,8 +24,17 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_native_splash: ^2.0.5+1
   flutter_lints: ^3.0.0
   
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icon/Geoblogging.png
+
+flutter_native_splash:
+    color: "#ffffff"
+    image: assets/icon/Geoblogging.png
+    android: true
+    ios: true
