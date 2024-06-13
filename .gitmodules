@@ -1,0 +1,3 @@
+[submodule "fuzzy-octo-succotash"]
+	path = fuzzy-octo-succotash
+	url = https://github.com/bsc-inf-25-19/fuzzy-octo-succotash
