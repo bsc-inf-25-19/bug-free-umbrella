@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -29,7 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Stack(
           children: [
             Obx(
-                  () => GoogleMap(
+              () => GoogleMap(
                 initialCameraPosition: const CameraPosition(
                   target: LatLng(-15.3875846, 35.3368270),
                   zoom: 13,
@@ -59,14 +60,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               controller: _searchController,
                               decoration: InputDecoration(
                                 hintText: 'Search an address...',
-                                prefixIcon: const Icon(Icons.search),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30),
                                   borderSide: BorderSide.none,
                                 ),
                                 filled: true,
                                 fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 0, horizontal: 20),
                                 suffixIcon: IconButton(
                                   icon: const Icon(Icons.clear),
                                   onPressed: () {
@@ -78,7 +79,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                             suggestionsCallback: (pattern) async {
                               return mapController.searchHistory
-                                  .where((item) => item.toLowerCase().contains(pattern.toLowerCase()))
+                                  .where((item) => item
+                                      .toLowerCase()
+                                      .contains(pattern.toLowerCase()))
                                   .take(5)
                                   .toList();
                             },
@@ -91,11 +94,30 @@ class _MyHomePageState extends State<MyHomePage> {
                               _searchController.text = suggestion;
                               mapController.fetchLocations(suggestion, context);
                             },
+
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.search),
-                          onPressed: () => mapController.fetchLocations(_searchController.text, context),
+                          icon: Icon(Icons.search),
+                          onPressed: () {
+                            final searchText = _searchController.text
+                                .trim(); // Trim whitespace
+
+                            if (searchText.isEmpty) {
+                              Fluttertoast.showToast(
+                                msg: 'No address entered',
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.grey[800],
+                                textColor: Colors.white,
+                                fontSize: 16.0,
+                              );
+                            } else {
+                              log('Search button clicked with text: $searchText'); // Debug log
+                              mapController.fetchLocations(searchText, context);
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -105,17 +127,17 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Obx(
-                  () => mapController.isLoading.value
+              () => mapController.isLoading.value
                   ? Center(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const CircularProgressIndicator(),
-                ),
-              )
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const CircularProgressIndicator(),
+                      ),
+                    )
                   : Container(),
             ),
           ],
