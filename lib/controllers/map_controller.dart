@@ -113,7 +113,7 @@ class MapController extends GetxController {
     List<MapLatLng> convexHullPoints = convexHull(points.map((e) => MapLatLng(e.latitude, e.longitude)).toList());
     polygons.add(
       Polygon(
-        polygonId: PolygonId('areaPolygon'),
+        polygonId: const PolygonId('areaPolygon'),
         points: convexHullPoints.map((e) => LatLng(e.latitude, e.longitude)).toList(),
         strokeColor: Colors.blue,
         strokeWidth: 2,
@@ -133,7 +133,7 @@ class MapController extends GetxController {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('House Number: ${address.house_no}', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('House Number: ${address.house_no}', style: const TextStyle(fontWeight: FontWeight.bold)),
               Text('Road Name: ${address.road_name}'),
               Text('Area Name: ${address.area_name}'),
               Text('District: ${address.district}'),
@@ -159,13 +159,13 @@ class MapController extends GetxController {
                         fontSize: 16.0,
                       );
                     },
-                    icon: Icon(Icons.copy),
+                    icon: const Icon(Icons.copy),
                   ),
                   IconButton(
                     onPressed: () {
                       _shareAddress(context, address.toFullAddress());
                     },
-                    icon: Icon(Icons.share),
+                    icon: const Icon(Icons.share),
                   ),
                   PopupMenuButton<String>(
                     onSelected: (String value) {
@@ -186,7 +186,7 @@ class MapController extends GetxController {
                         );
                       }).toList();
                     },
-                    icon: Icon(Icons.directions),
+                    icon: const Icon(Icons.directions),
                   ),
                 ],
               ),
