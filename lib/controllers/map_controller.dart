@@ -54,6 +54,7 @@ class MapController extends GetxController {
         } else {
           // No number, assume it's an area search
           createPolygons(context);
+          markers.clear(); // Clear markers for area search
         }
 
         if (mapModel.isNotEmpty) {
@@ -112,15 +113,21 @@ class MapController extends GetxController {
     polygons.clear();
     List<LatLng> points = mapModel.map((e) => LatLng(e.latitude, e.longitude)).toList();
     List<MapLatLng> convexHullPoints = convexHull(points.map((e) => MapLatLng(e.latitude, e.longitude)).toList());
+    List<LatLng> polygonPoints = convexHullPoints.map((e) => LatLng(e.latitude, e.longitude)).toList();
+
+    log('Convex Hull Points: $polygonPoints'); // Debug log
+
     polygons.add(
       Polygon(
         polygonId: const PolygonId('areaPolygon'),
-        points: convexHullPoints.map((e) => LatLng(e.latitude, e.longitude)).toList(),
+        points: polygonPoints,
         strokeColor: Colors.blue,
         strokeWidth: 2,
         fillColor: Colors.blue.withOpacity(0.15),
       ),
     );
+
+    log('Polygons added: ${polygons.length}'); // Debug log
   }
 
   void _showAddressModal(BuildContext context, MapModel address) {

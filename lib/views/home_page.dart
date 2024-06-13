@@ -19,30 +19,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showWelcomeDialog(context);
-    });
     mapController.fetchLocations('', context);
-  }
-
-  void _showWelcomeDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('MALAWI GEOCODING ASSISTANT'),
-          content: const Text('Welcome! Start by searching for an address.'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
@@ -70,50 +47,60 @@ class _MyHomePageState extends State<MyHomePage> {
               right: 15,
               child: Column(
                 children: [
-                  Material(
-                    elevation: 8,
-                    borderRadius: BorderRadius.circular(8),
-                    child: TypeAheadField(
-                      textFieldConfiguration: TextFieldConfiguration(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Search an address...',
-                          prefixIcon: const Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                              mapController.fetchLocations('', context);
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TypeAheadField<String>(
+                            textFieldConfiguration: TextFieldConfiguration(
+                              controller: _searchController,
+                              decoration: InputDecoration(
+                                hintText: 'Search an address...',
+                                prefixIcon: const Icon(Icons.search),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide.none,
+                                ),
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    mapController.fetchLocations('', context);
+                                  },
+                                ),
+                              ),
+                            ),
+                            suggestionsCallback: (pattern) async {
+                              return mapController.searchHistory
+                                  .where((item) => item.toLowerCase().contains(pattern.toLowerCase()))
+                                  .take(5)
+                                  .toList();
+                            },
+                            itemBuilder: (context, suggestion) {
+                              return ListTile(
+                                title: Text(suggestion),
+                              );
+                            },
+                            onSuggestionSelected: (suggestion) {
+                              _searchController.text = suggestion;
+                              mapController.fetchLocations(suggestion, context);
                             },
                           ),
                         ),
-                      ),
-                      suggestionsCallback: (pattern) async {
-                        return mapController.searchHistory.where((item) => item.toLowerCase().contains(pattern.toLowerCase())).toList();
-                      },
-                      itemBuilder: (context, suggestion) {
-                        return ListTile(
-                          title: Text(suggestion),
-                        );
-                      },
-                      onSuggestionSelected: (suggestion) {
-                        _searchController.text = suggestion;
-                        mapController.fetchLocations(suggestion, context);
-                      },
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () => mapController.fetchLocations(_searchController.text, context),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () => mapController.fetchLocations(_searchController.text, context),
-                    child: const Text('Search'),
-                  ),
                 ],
               ),
             ),
