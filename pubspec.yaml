@@ -19,7 +19,7 @@ dependencies:
   location: ^6.0.2
   url_launcher: ^6.0.17
   fluttertoast: ^8.0.8
-  share: ^2.0.4
+  share_plus: ^8.0.0
 
 dev_dependencies:
   flutter_test:

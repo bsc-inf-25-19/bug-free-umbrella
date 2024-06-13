@@ -6,9 +6,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:share/share.dart';
 import '../models/map_model.dart';
 import '../utils/convex_hull.dart';
 
@@ -194,7 +194,8 @@ class MapController extends GetxController {
 
   void _shareAddress(BuildContext context, String address) {
     final RenderBox box = context.findRenderObject() as RenderBox;
-    Share.share(address,
+    Share.share(
+      address,
       sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
     );
   }

@@ -30,7 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Stack(
           children: [
             Obx(
-              () => GoogleMap(
+                  () => GoogleMap(
                 initialCameraPosition: const CameraPosition(
                   target: LatLng(-15.3875846, 35.3368270),
                   zoom: 13,
@@ -80,8 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             suggestionsCallback: (pattern) async {
                               return mapController.searchHistory
                                   .where((item) => item
-                                      .toLowerCase()
-                                      .contains(pattern.toLowerCase()))
+                                  .toLowerCase()
+                                  .contains(pattern.toLowerCase()))
                                   .take(5)
                                   .toList();
                             },
@@ -128,17 +128,17 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Obx(
-              () => mapController.isLoading.value
+                  () => mapController.isLoading.value
                   ? Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const CircularProgressIndicator(),
-                      ),
-                    )
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const CircularProgressIndicator(),
+                ),
+              )
                   : Container(),
             ),
           ],
