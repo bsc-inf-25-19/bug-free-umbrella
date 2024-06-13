@@ -50,6 +50,7 @@ class MapController extends GetxController {
         if (searchText.contains(RegExp(r'\d'))) {
           // Contains a number, assume it's a house search
           createMarkers(context);
+          polygons.clear(); // Clear polygons for house search
         } else {
           // No number, assume it's an area search
           createPolygons(context);
@@ -167,24 +168,11 @@ class MapController extends GetxController {
                     },
                     icon: const Icon(Icons.share),
                   ),
-                  PopupMenuButton<String>(
-                    onSelected: (String value) {
+                  IconButton(
+                    onPressed: () {
                       final destination = '${address.latitude},${address.longitude}';
-                      String url = '';
-                      if (value == 'Google Maps') {
-                        url = 'https://www.google.com/maps/dir/?api=1&destination=$destination';
-                      } else if (value == 'Waze') {
-                        url = 'https://waze.com/ul?ll=$destination&navigate=yes';
-                      }
+                      final url = 'https://www.google.com/maps/dir/?api=1&destination=$destination';
                       _launchURL(url);
-                    },
-                    itemBuilder: (BuildContext context) {
-                      return {'Google Maps', 'Waze'}.map((String choice) {
-                        return PopupMenuItem<String>(
-                          value: choice,
-                          child: Text(choice),
-                        );
-                      }).toList();
                     },
                     icon: const Icon(Icons.directions),
                   ),
