@@ -1,53 +1,58 @@
-The API handles search requests and interacts with the PostgreSQL database.
+## Malawi Geocoder : geocoding assistant
 
-### Technologies Used (API)
+The Flutter app serves as the geocoding assistant, allowing users to search for addresses and view them on a map.
 
-- Node.js
-- Express.js
-- PostgreSQL
-- PostGIS
+### Technologies Used (Flutter)
 
-### Setup and Installation (API)
+- Flutter
+- Dart
+- Google Maps API
+
+### Setup and Installation (Flutter)
 
 #### Prerequisites
 
-- Node.js and npm
-- PostgreSQL with PostGIS extension
+- Flutter SDK
 
 #### Steps
 
-1. Clone the repository:
+1. Navigate to the Flutter app directory:
    ```bash
-   git clone https://github.com/your-repo/malawi-geocoder.git
-   cd malawi-geocoder/api
+   cd malawi-geocoder/app
    ```
 
 2. Install dependencies:
    ```bash
-   npm install
+   flutter pub get
    ```
 
-3. Set up environment variables:
-   Create a `.env` file based on the `.env.example` template and fill in your database credentials.
-
-4. Start the API server:
+3. Run the Flutter app on an emulator or connected device:
    ```bash
-   npm start
+   flutter run
    ```
 
-### Usage (API)
+### Usage (Flutter)
 
-The API provides endpoints to search for addresses and retrieve geospatial data.
+The Flutter app allows users to:
 
-### API Endpoints
-
-- **/find**: Find an address by house number, road name, and area name.
-- **/search**: Search for addresses using a text query.
-
-#### Example Request
-```bash
-GET /search?text=Area+51
-```
+- Search for addresses.
+- View address locations on a Google Map.
+- Interact with markers and polygons representing search results.
+- Access search history and cached results.
 
 ---
 
+[//]: # (## Collaborators)
+
+[//]: # ()
+[//]: # (This project is a private collaboration. If you are a collaborator, please ensure all changes are discussed and approved with the project leads before implementation. For any issues or contributions, please contact:)
+
+[//]: # ()
+[//]: # (- **Project Lead**: [Your Name]&#40;mailto:your-email@example.com&#41;)
+
+[//]: # (- **Lead Developer**: [Developer Name]&#40;mailto:developer-email@example.com&#41;)
+
+[//]: # (- **Database Administrator**: [DBA Name]&#40;mailto:dba-email@example.com&#41;)
+
+[//]: # ()
+[//]: # (---)
