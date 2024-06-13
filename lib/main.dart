@@ -30,7 +30,28 @@ class SplashScreen extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             body: Center(
-              child: Image.asset('assets/icon/Geoblogging.png'), // Your app icon here
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('assets/icon/gen2.png'), // App icon here
+                  const SizedBox(height: 20), // Space between icon and text
+                  const Text(
+                    'Malawi Geocoder',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10), // Space between title and slogan
+                  const Text(
+                    'Your reliable Malawian geocoding companion',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         } else {
@@ -58,8 +79,12 @@ class SplashScreen extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('MALAWI GEOCODING ASSISTANT'),
-          content: const Text('Welcome! Start by searching for an address.'),
+          title: const Text('Welcome to Malawi Geocoder'),
+          content: const Text(
+            'We are glad to have you! Malawi Geocoder helps you find '
+                'accurate geocoding information for addresses in Malawi. '
+                'Get started by entering an address in the search bar.',
+          ),
           actions: <Widget>[
             TextButton(
               child: const Text('OK'),
