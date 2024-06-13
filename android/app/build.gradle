@@ -42,7 +42,11 @@ android {
     namespace "com.example.geocoding_assistant"
     compileSdk 34
     ndkVersion flutter.ndkVersion
-
+    buildTypes {
+        release {
+            minifyEnabled true
+        }
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -70,6 +74,8 @@ android {
 
     buildTypes {
         release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
