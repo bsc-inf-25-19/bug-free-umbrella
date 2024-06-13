@@ -18,7 +18,7 @@ The Flutter app serves as the geocoding assistant, allowing users to search for 
 
 1. Navigate to the Flutter app directory:
    ```bash
-   cd malawi-geocoder/app
+   cd mrepo
    ```
 
 2. Install dependencies:
