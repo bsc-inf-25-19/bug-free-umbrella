@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -75,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
                   child: Row(
                     children: [
                       Expanded(
@@ -83,11 +82,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           textFieldConfiguration: TextFieldConfiguration(
                             controller: _searchController,
                             decoration: InputDecoration(
-                              labelText: 'Enter your search query',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
-                              isDense: true,
+                              hintText: 'Enter address(e.g 25, masawu court, matawale, zomba, eastern region)',
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(vertical: 8.0),
                             ),
                           ),
                           suggestionsCallback: (pattern) {
@@ -106,20 +103,13 @@ class _MyHomePageState extends State<MyHomePage> {
                           noItemsFoundBuilder: (context) => const SizedBox.shrink(),
                         ),
                       ),
-                      const SizedBox(width: 8.0),
-                      Tooltip(
-                        message: 'Search',
-                        child: ElevatedButton(
-                          onPressed: () {
-                            final searchText = _searchController.text;
-                            log('Search button clicked with text: $searchText'); // Debug log
-                            mapController.fetchLocations(searchText, context);
-                          },
-                          child: Icon(Icons.search),
-                          style: ElevatedButton.styleFrom(
-                            shape: const StadiumBorder(),
-                          ),
-                        ),
+                      IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: () {
+                          final searchText = _searchController.text;
+                          log('Search button clicked with text: $searchText');
+                          mapController.fetchLocations(searchText, context);
+                        },
                       ),
                     ],
                   ),
