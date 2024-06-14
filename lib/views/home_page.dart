@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../controllers/map_controller.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -16,11 +17,19 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final MapController mapController = Get.put(MapController());
   final TextEditingController _searchController = TextEditingController();
+  List<String> searchHistory = []; // Track selected suggestions separately
 
   @override
   void initState() {
     super.initState();
+    loadSearchHistory();
     mapController.fetchLocations('', context);
+  }
+
+  Future<void> loadSearchHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    searchHistory = prefs.getStringList('searchHistory') ?? [];
+    setState(() {}); // Update the UI with loaded history
   }
 
   @override
@@ -60,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               controller: _searchController,
                               decoration: InputDecoration(
                                 hintText: 'Search an address...',
+                                hintStyle: TextStyle(color: Colors.black.withOpacity(0.3)), // Adjust opacity here
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30),
                                   borderSide: BorderSide.none,
@@ -78,11 +88,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                             suggestionsCallback: (pattern) async {
-                              return mapController.searchHistory
+                              return searchHistory
                                   .where((item) => item
                                   .toLowerCase()
                                   .contains(pattern.toLowerCase()))
-                                  .take(5)
                                   .toList();
                             },
                             itemBuilder: (context, suggestion) {
@@ -93,6 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             onSuggestionSelected: (suggestion) {
                               _searchController.text = suggestion;
                               mapController.fetchLocations(suggestion, context);
+                              updateSearchHistory(suggestion); // Update history on selection
                             },
                             noItemsFoundBuilder: (context) => const SizedBox.shrink(),
 
@@ -117,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             } else {
                               log('Search button clicked with text: $searchText'); // Debug log
                               mapController.fetchLocations(searchText, context);
+                              updateSearchHistory(searchText); // Update history on search button click
                             }
                           },
                         ),
@@ -145,5 +156,15 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+
+  Future<void> updateSearchHistory(String searchText) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (searchHistory.contains(searchText)) {
+      searchHistory.remove(searchText);
+    }
+    searchHistory.insert(0, searchText); // Insert at the beginning for newest first order
+    prefs.setStringList('searchHistory', searchHistory);
+    setState(() {}); // Update UI with the new history
   }
 }
