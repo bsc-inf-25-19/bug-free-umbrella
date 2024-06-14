@@ -1,6 +1,14 @@
-## Malawi Geocoder : geocoding assistant
+```markdown
+## Malawi Geocoder : Geocoding Assistant
 
-The Flutter app serves as the geocoding assistant, allowing users to search for addresses and view them on a map.
+The Flutter app serves as the geocoding assistant complementing the geo-datastore and geocoding engine, allowing users to search for addresses and view them on a map.
+
+
+### Download Link
+
+Scan the QR code below to download the app:
+
+![Download QR Code](assets/images/download_qr_code.png)
 
 ### Technologies Used (Flutter)
 
@@ -40,6 +48,7 @@ The Flutter app allows users to:
 - Interact with markers and polygons representing search results.
 - Access search history and cached results.
 
+
 ---
 
 [//]: # (## Collaborators)
@@ -56,3 +65,5 @@ The Flutter app allows users to:
 
 [//]: # ()
 [//]: # (---)
+```
+
