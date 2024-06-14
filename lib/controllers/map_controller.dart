@@ -86,8 +86,8 @@ class MapController extends GetxController {
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
         position: LatLng(element.latitude, element.longitude),
         infoWindow: InfoWindow(
-          title: element.house_no,
-          snippet: element.area_name,
+          title: '${element.house_no}, ${element.road_name}',
+          snippet: '${element.area_name}......',
           onTap: () => _showAddressModal(context, element),
         ),
       ));
