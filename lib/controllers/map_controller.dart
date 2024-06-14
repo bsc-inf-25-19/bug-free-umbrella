@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -27,16 +28,15 @@ class MapController extends GetxController {
   }
 
   Future<void> fetchLocations(String searchText, BuildContext context) async {
-    log('Search text: $searchText');  // Debug log
+    log('Search text: $searchText'); // Debug log
     try {
       isLoading(true);
       final response = await http.get(
-          Uri.parse('http://146.190.224.204:3000/search?text=$searchText')
-      );
+          Uri.parse('http://146.190.224.204:3000/search?text=$searchText'));
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
-        log('API Response: $result');  // Debug log
+        log('API Response: $result'); // Debug log
 
         mapModel.clear();
         result.forEach((item) {
@@ -59,7 +59,8 @@ class MapController extends GetxController {
 
         if (mapModel.isNotEmpty) {
           final firstResult = mapModel.first;
-          final target = LatLng(firstResult.latitude, firstResult.longitude);
+          final target =
+          LatLng(firstResult.latitude, firstResult.longitude);
           googleMapController?.animateCamera(
             CameraUpdate.newLatLngZoom(target, 15),
           );
@@ -67,27 +68,11 @@ class MapController extends GetxController {
         addSearchToHistory(searchText);
       } else {
         log('Error fetching data: ${response.statusCode}');
-        Fluttertoast.showToast(
-          msg: 'Error fetching data: ${response.statusCode}',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.grey[800],
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+        handleNetworkError();
       }
     } catch (e) {
       log('Error while getting data: $e');
-      Fluttertoast.showToast(
-        msg: 'Error while getting data: $e',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.grey[800],
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
+      handleNetworkError();
     } finally {
       isLoading(false);
     }
@@ -111,9 +96,12 @@ class MapController extends GetxController {
 
   void createPolygons(BuildContext context) {
     polygons.clear();
-    List<LatLng> points = mapModel.map((e) => LatLng(e.latitude, e.longitude)).toList();
-    List<MapLatLng> convexHullPoints = convexHull(points.map((e) => MapLatLng(e.latitude, e.longitude)).toList());
-    List<LatLng> polygonPoints = convexHullPoints.map((e) => LatLng(e.latitude, e.longitude)).toList();
+    List<LatLng> points =
+    mapModel.map((e) => LatLng(e.latitude, e.longitude)).toList();
+    List<MapLatLng> convexHullPoints =
+    convexHull(points.map((e) => MapLatLng(e.latitude, e.longitude)).toList());
+    List<LatLng> polygonPoints =
+    convexHullPoints.map((e) => LatLng(e.latitude, e.longitude)).toList();
 
     log('Convex Hull Points: $polygonPoints'); // Debug log
 
@@ -210,7 +198,7 @@ class MapController extends GetxController {
 
   Future<void> addSearchToHistory(String searchText) async {
     if (!searchHistory.contains(searchText)) {
-      searchHistory.add(searchText);
+      searchHistory.insert(0, searchText);
       final prefs = await SharedPreferences.getInstance();
       prefs.setStringList('searchHistory', searchHistory);
     }
@@ -219,5 +207,17 @@ class MapController extends GetxController {
   Future<void> loadSearchHistory() async {
     final prefs = await SharedPreferences.getInstance();
     searchHistory.value = prefs.getStringList('searchHistory') ?? [];
+  }
+
+  void handleNetworkError() {
+    Fluttertoast.showToast(
+      msg: 'Please check your internet connection.',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.grey[800],
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
   }
 }
