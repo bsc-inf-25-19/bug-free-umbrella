@@ -17,7 +17,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final MapController mapController = Get.put(MapController());
   final TextEditingController _searchController = TextEditingController();
-  List<String> searchHistory = []; // Track selected suggestions separately
+  List<String> searchHistory = [];
 
   @override
   void initState() {
@@ -29,7 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> loadSearchHistory() async {
     final prefs = await SharedPreferences.getInstance();
     searchHistory = prefs.getStringList('searchHistory') ?? [];
-    setState(() {}); // Update the UI with loaded history
+    setState(() {});
   }
 
   @override
@@ -69,15 +69,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               controller: _searchController,
                               decoration: InputDecoration(
                                 hintText: 'Search an address...',
-                                hintStyle: TextStyle(color: Colors.black.withOpacity(0.3)), // Adjust opacity here
+                                hintStyle: TextStyle(color: Colors.black.withOpacity(0.3)),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30),
                                   borderSide: BorderSide.none,
                                 ),
                                 filled: true,
                                 fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 0, horizontal: 20),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
                                 suffixIcon: IconButton(
                                   icon: const Icon(Icons.clear),
                                   onPressed: () {
@@ -89,31 +88,37 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                             suggestionsCallback: (pattern) async {
                               return searchHistory
-                                  .where((item) => item
-                                  .toLowerCase()
-                                  .contains(pattern.toLowerCase()))
+                                  .where((item) => item.toLowerCase().contains(pattern.toLowerCase()))
                                   .toList();
                             },
                             itemBuilder: (context, suggestion) {
-                              return ListTile(
-                                title: Text(suggestion),
+                              return GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () {
+                                  _searchController.text = suggestion;
+                                  mapController.fetchLocations(suggestion, context);
+                                  updateSearchHistory(suggestion);
+                                },
+                                onLongPress: () {
+                                  showRemoveDialog(suggestion);
+                                },
+                                child: ListTile(
+                                  title: Text(suggestion),
+                                ),
                               );
                             },
                             onSuggestionSelected: (suggestion) {
                               _searchController.text = suggestion;
                               mapController.fetchLocations(suggestion, context);
-                              updateSearchHistory(suggestion); // Update history on selection
+                              updateSearchHistory(suggestion);
                             },
                             noItemsFoundBuilder: (context) => const SizedBox.shrink(),
-
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.search),
+                          icon: const Icon(Icons.search),
                           onPressed: () {
-                            final searchText = _searchController.text
-                                .trim(); // Trim whitespace
-
+                            final searchText = _searchController.text.trim();
                             if (searchText.isEmpty) {
                               Fluttertoast.showToast(
                                 msg: 'No address entered',
@@ -125,9 +130,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                 fontSize: 16.0,
                               );
                             } else {
-                              log('Search button clicked with text: $searchText'); // Debug log
+                              log('Search button clicked with text: $searchText');
                               mapController.fetchLocations(searchText, context);
-                              updateSearchHistory(searchText); // Update history on search button click
+                              updateSearchHistory(searchText);
                             }
                           },
                         ),
@@ -163,8 +168,39 @@ class _MyHomePageState extends State<MyHomePage> {
     if (searchHistory.contains(searchText)) {
       searchHistory.remove(searchText);
     }
-    searchHistory.insert(0, searchText); // Insert at the beginning for newest first order
+    searchHistory.insert(0, searchText);
     prefs.setStringList('searchHistory', searchHistory);
-    setState(() {}); // Update UI with the new history
+    setState(() {});
+  }
+
+  Future<void> showRemoveDialog(String suggestion) async {
+    final confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove From History'),
+        content: Text('Are you sure you want to remove "$suggestion" from your search history?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // Don't remove
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true); // Remove
+            },
+            child: const Text('Remove', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      searchHistory.remove(suggestion);
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setStringList('searchHistory', searchHistory);
+      setState(() {});
+    }
   }
 }
